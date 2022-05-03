@@ -1,5 +1,5 @@
 import argparse
-from helpers.helper import Connection
+from helpers.helper import Connection, format_csv
 from commands import print_out_directory, remove_files
 
 def parse_arguments():
@@ -25,6 +25,6 @@ if __name__ == "__main__":
 
     # 3 - Remove files
     if args.remove:
-        remove_files(args.file, directory)
+        remove_files(directory, format_csv(args.file), connection.delete_files)
         
             
