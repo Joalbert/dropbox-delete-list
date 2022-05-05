@@ -25,6 +25,6 @@ if __name__ == "__main__":
 
     # 3 - Remove files
     if args.remove:
-        remove_files(directory, format_csv(args.file), connection.delete_files, path=args.path)
+        remove_files(directory, format_csv(args.file), connection.delete_files)
         
             

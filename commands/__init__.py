@@ -26,9 +26,9 @@ def remove_files(directory:tuple, filenames_to_be_kept:"list[str]",
     # a -Files to be deleted
     file_to_delete = diff_files(files_in_db=filenames_to_be_kept, 
                                 files_in_server=directory[0], 
-                                field_output="name")
+                                field_output="path_display")
     for item in file_to_delete:
-        print(f"{item}\t{id}", sep="\n")
+        print(f"{item}", sep="\n")
     print(f"Files to be deleted: {len(file_to_delete)} files.", 
          file=sys.stdout)
     confirm = input("Do you really want to delete the files listed [y/n]? \n")
