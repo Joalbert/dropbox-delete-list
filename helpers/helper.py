@@ -1,21 +1,22 @@
 import sys
 import csv
+from typing import List, Dict, Iterable
 
 from dropbox import Dropbox
 from dropbox.exceptions import AuthError
 from dropbox.files import FileMetadata
 
-def diff_files(*, files_in_db:"list[dict]", files_in_server:"list[str]", field_output: str="id")->"list[str]":
+def diff_files(*, files_in_db:Iterable[Dict], files_in_server:List[str], field_output: str="id")->List[str]:
     ''' Check difference between existant and files_in_db lists and elements not in files_in_db will be returned'''
-    diff = list()
+    diff:List[str] = list()
     for file in files_in_server:
         if not (file["name"] in files_in_db):
             diff.append(file[field_output])
     return diff 
 
-def format_csv(path_csv:str)->"list[str]":
+def format_csv(path_csv:str)->List[str]:
     """With first row of csv files which has a path get filename and return a list of filenames"""
-    filenames = []
+    filenames:List[str] = []
     with open(path_csv) as f:
         spamreader = csv.reader(f, delimiter=' ', quotechar=',')
         for row in spamreader:
@@ -33,10 +34,10 @@ class Connection:
         try:
             dbx = Dropbox(self.token) 
         except ConnectionError:
-            sys.stderr.write("Connection Trouble. Please, check your internet connection!\n")
+            print("Connection Trouble. Please, check your internet connection!\n", file=sys.stderr)
             raise 
         except AuthError as e:
-            sys.stderr.write("Authentication Error. Please, check if token is still valid!\n")
+            print("Authentication Error. Please, check if token is still valid!\n", file=sys.stderr)
             raise 
         else:
             return dbx
@@ -49,7 +50,7 @@ class Connection:
             folder = dbx.files_list_folder(path)
             files = folder.entries
         except Exception as e:
-            sys.stderr.write(f'Error getting list of files from Dropbox: {str(e)} \n')
+            print(f'Error getting list of files from Dropbox: {str(e)} \n',file=sys.stderr)
             raise
 
         else:
@@ -68,16 +69,18 @@ class Connection:
                     directory_list.append(file)
             return (files_list, directory_list)
     
-    def delete_files(self, file_id:"list[str]")->None:
+    def delete_files(self, file_id:Iterable[str])->None:
         """Delete file_id list"""
         try:
             dbx = self._connect()
-            dbx.file_requests_delete(file_id)
+            for file in file_id:
+                dbx.files_delete(path=file)
+                print(f'File: {file} was successfully deleted!\n',file=sys.stdout)                
         except Exception as e:
-            sys.stderr.write(f'Error deleting the list of files from Dropbox: {str(e)} \n' )
+            print(f'Error deleting the list of files from Dropbox: {str(e)} \n',file=sys.stderr)
             raise
-        else:
-            sys.stdout.write(f'File: {file_id} was successfully deleted!\n')
+            
+            
 
 if __name__ == "__main__":
     print("it would not support terminal mode!")
