@@ -1,6 +1,7 @@
-from helpers.helper import (format_csv, diff_files)
 import sys
-import os
+from typing import Iterable, Callable, Tuple
+
+from helpers.helper import (format_csv, diff_files)
 
 def print_out_directory(directory:tuple)->None:
     """ print out list directory and files if any, data is passed as followed item 0 files and item 1 directories."""
@@ -17,8 +18,8 @@ def print_out_directory(directory:tuple)->None:
         if (index==len(directory[0])-1):
             print(f"Files: {len(directory[0])} items", file=sys.stdout)
 
-def remove_files(directory:tuple, filenames_to_be_kept:"list[str]", 
-                delete:'function')->None:
+def remove_files(directory:Tuple[Iterable, Iterable], filenames_to_be_kept:Iterable[str], 
+                delete:Callable)->None:
     """ remove files in directory that are not in filenames_to_be_kept list, 
         directory is passed as followed item 0 files and item 1 directories.
     """
