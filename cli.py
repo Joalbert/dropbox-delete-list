@@ -7,7 +7,7 @@ from commands import print_out_directory, remove_files
 
 def parse_arguments(args):
     parser = argparse.ArgumentParser(prog="Cleaned directory in Dropbox.")
-    parser.add_argument("-f", "--file", help="File with existant files in database", required=True)
+    parser.add_argument("-f", "--file", help="File with existant files in database")
     parser.add_argument("-p", "--path", help="directory to be shown/cleaned in Dropbox", required=True)
     parser.add_argument("-k", "--key", help="API Token in Dropbox", required=True)
     group = parser.add_mutually_exclusive_group()
@@ -39,12 +39,18 @@ def main(argv=None):
     # 3 - Remove files
     if args.remove:
         try:
-            remove_files(directory=directory, filenames_to_be_kept=format_csv(args.file), delete=connection.delete_files)
+            if args.file:
+                remove_files(directory=directory, filenames_to_be_kept=format_csv(args.file), 
+                            delete=connection.delete_files)
+            else:
+                raise argparse.ArgumentError(args.file, 
+                        "File should be included to specify files to be kept in server")
         except ConnectionError:
             print("Please, try later", file=sys.stdout)
             return 1
         else:
             return 0
+    
 
 if __name__ == "__main__":
     exit(main())        

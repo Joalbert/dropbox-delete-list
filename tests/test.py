@@ -215,7 +215,6 @@ class TestHelper(unittest.TestCase):
     
     def test_cli(self):
         args = [
-            "-f tests/test.csv",
             "-p /home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/",
             "-k 1234",
             "-l"]    
@@ -247,6 +246,16 @@ class TestHelper(unittest.TestCase):
         
     def test_cli_bad_command(self):
         args = [
+            "-p /home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/",
+            "-k 1234",
+            "-r"]    
+        with patch("cli.Connection") as conn:
+            conn.return_value = MockConnection("1234")
+            with self.assertRaises(argparse.ArgumentError):
+                main(args)
+
+        
+        args = [
             "-f tests/test.csv",
             "-p /home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/",
             "-k 1234",
@@ -256,6 +265,7 @@ class TestHelper(unittest.TestCase):
             conn.return_value = MockConnection("1234")
             with self.assertRaises(SystemExit):
                 main(args)
+
 
 if __name__ == '__main__':
     unittest.main()
