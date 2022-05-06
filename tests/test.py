@@ -2,7 +2,6 @@ import os
 from io import StringIO
 from contextlib import redirect_stderr, redirect_stdout
 import datetime
-from sys import stderr
 import unittest
 from unittest.mock import patch
 
@@ -11,9 +10,10 @@ from dropbox.exceptions import AuthError
 from dropbox.files import FileMetadata
 
 from helpers.helper import (diff_files, Connection, format_csv)
+from commands import print_out_directory, remove_files
 
 FILES_IN_DB = ['user.png','user_Ex6Ux0I.png',]
-EXPECTED_RESULT = ['id:IXm8y2xS_d4AAAAAAAADew','id:IXm8y2xS_d4AAAAAAAADfw']
+EXPECTED_RESULT = ['user_Pe9OmXf.png','user_VtIfC05.png']
 MOCK_FILES = [{'id': 'id:IXm8y2xS_d4AAAAAAAADZQ', 'name': 'user.png', 
             'path_display': '/home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/user.png', 
             'client_modified': datetime.datetime(2021, 12, 16, 21, 52, 8), 
@@ -137,7 +137,7 @@ class TestHelper(unittest.TestCase):
                     self.assertEqual(expected_error,error.getvalue())
 
     def test_diff_files(self): 
-        result = diff_files(files_in_db=FILES_IN_DB,files_in_server=MOCK_FILES)
+        result = diff_files(files_in_db=FILES_IN_DB,files_in_server=MOCK_FILES, field_output="name")
         self.assertEqual(result,EXPECTED_RESULT)
 
     def test_format_csv(self):
@@ -146,13 +146,41 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result, expected_value)
 
     def test_command_print_out(self):
-        pass
+        expected_value =f"FILES:\n======\n--{MOCK_FILES[0]['name']} {MOCK_FILES[0]['server_modified']}\nFiles: 1 items\n"
+        input_data = ([MOCK_FILES[0]],[])
+        with redirect_stdout(StringIO()) as output:
+            print_out_directory(input_data)
+            self.assertEqual(expected_value, output.getvalue()) 
+
+        expected_value =f"DIR:\n====\n--test/\n"
+        input_data = ([],["test/"])
+        with redirect_stdout(StringIO()) as output:
+            print_out_directory(input_data)
+            self.assertEqual(expected_value, output.getvalue()) 
+
 
     def test_command_delete(self):
-        pass
+        expected_value = f"Files to be deleted: 1 files.\nDo you really want to delete the files listed [y/n]? \nIt has been deleted 1 files!\n"
+        files_server = ([MOCK_FILES[0], MOCK_FILES[1]],[])
+        files_to_kept = ['user.png']
+        with redirect_stdout(StringIO()) as output:
+            with patch('commands.input') as input_data:
+                input_data.return_value = "y"
+                remove_files(directory=files_server, filenames_to_be_kept=files_to_kept, delete=len)
+                self.assertEqual(expected_value, output.getvalue())
+
+        
+        expected_value = f"Files to be deleted: 1 files.\nDo you really want to delete the files listed [y/n]? \nDeletion has been canceled!\n"
+        with redirect_stdout(StringIO()) as output:
+            with patch('commands.input') as input_data:
+                input_data.return_value = "n"
+                remove_files(files_server, files_to_kept, len)
+                self.assertEqual(expected_value, output.getvalue())
+
 
     def test_cli(self):
-        pass
+        result = os.system("python3 cli.py -f test.csv -k 1234 -p /media/identifications/images -l")
+        self.assertEqual(result,0)
 
 if __name__ == '__main__':
     unittest.main()

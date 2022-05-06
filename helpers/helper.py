@@ -68,7 +68,7 @@ class Connection:
                     }
                     files_list.append(metadata)
                 else:
-                    directory_list.append(file)
+                    directory_list.append(file.name)
             return (files_list, directory_list)
     
     def delete_files(self, file_id:Iterable[str])->None:

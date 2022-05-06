@@ -37,7 +37,7 @@ def main():
     # 3 - Remove files
     if args.remove:
         try:
-            remove_files(directory, format_csv(args.file), connection.delete_files)
+            remove_files(directory=directory, filenames_to_be_kept=format_csv(args.file), delete=connection.delete_files)
         except ConnectionError:
             print("Please, try later", file=sys.stdout)
         return 0
