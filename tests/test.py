@@ -10,7 +10,7 @@ from dropbox import Dropbox
 from dropbox.exceptions import AuthError
 from dropbox.files import FileMetadata
 
-from helpers.helper import (diff_files, Connection)
+from helpers.helper import (diff_files, Connection, format_csv)
 
 FILES_IN_DB = ['user.png','user_Ex6Ux0I.png',]
 EXPECTED_RESULT = ['id:IXm8y2xS_d4AAAAAAAADew','id:IXm8y2xS_d4AAAAAAAADfw']
@@ -141,6 +141,17 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(result,EXPECTED_RESULT)
 
     def test_format_csv(self):
+        expected_value = ["test.jpg"]
+        result = format_csv("tests/test.csv")
+        self.assertEqual(result, expected_value)
+
+    def test_command_print_out(self):
+        pass
+
+    def test_command_delete(self):
+        pass
+
+    def test_cli(self):
         pass
 
 if __name__ == '__main__':

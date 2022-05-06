@@ -19,7 +19,9 @@ def format_csv(path_csv:str)->List[str]:
     filenames:List[str] = []
     with open(path_csv) as f:
         spamreader = csv.reader(f, delimiter=' ', quotechar=',')
-        for row in spamreader:
+        for index, row in enumerate(spamreader):
+            if index==0:
+                continue
             name = str(row).split(",")[0].split("/")[-1]
             filenames.append(name)
     return filenames
