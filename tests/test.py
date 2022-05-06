@@ -144,7 +144,7 @@ class TestHelper(unittest.TestCase):
             
         with redirect_stdout(StringIO()) as output:
             with patch('helpers.helper.Dropbox.files_delete') as Mock: 
-                expected_output = f'File: {DELETED_FILES[0]} was successfully deleted!\n\n'
+                expected_output = f'File: {DELETED_FILES[0]} was successfully deleted!\n'
                 Mock.return_value = MockFolder()
                 files = con.delete_files([DELETED_FILES[0]])
                 self.assertIsNone(files)
@@ -175,6 +175,12 @@ class TestHelper(unittest.TestCase):
 
         expected_value =f"DIR:\n====\n--test/\n"
         input_data = ([],["test/"])
+        with redirect_stdout(StringIO()) as output:
+            print_out_directory(input_data)
+            self.assertEqual(expected_value, output.getvalue()) 
+
+        expected_value =f"It is empty.\n"
+        input_data = ([],[])
         with redirect_stdout(StringIO()) as output:
             print_out_directory(input_data)
             self.assertEqual(expected_value, output.getvalue()) 

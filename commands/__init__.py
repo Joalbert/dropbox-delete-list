@@ -5,6 +5,9 @@ from helpers.helper import (diff_files)
 
 def print_out_directory(directory:tuple)->None:
     """ print out list directory and files if any, data is passed as followed item 0 files and item 1 directories."""
+    if(len(directory[0])==0 and len(directory[1])==0):
+        print("It is empty.", file= sys.stdout, end="\n")
+        return
     for index, item in enumerate(directory[1]):
         if index==0:
             print("DIR:",end="\n", file=sys.stdout)

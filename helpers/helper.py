@@ -77,7 +77,7 @@ class Connection:
             dbx = self._connect()
             for file in file_id:
                 dbx.files_delete(path=file)
-                print(f'File: {file} was successfully deleted!\n',file=sys.stdout)                
+                print(f'File: {file} was successfully deleted!',file=sys.stdout)                
         except Exception as e:
             print(f'Error deleting the list of files from Dropbox: {str(e)} \n',file=sys.stderr)
             raise
