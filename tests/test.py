@@ -1,10 +1,11 @@
-import os
+from argparse import ArgumentError
 from io import StringIO
 from contextlib import redirect_stderr, redirect_stdout
 import datetime
 import unittest
 from unittest.mock import patch
 from typing import (Type, Tuple, List, Any, Dict, Iterable)
+import argparse 
 
 from dropbox import Dropbox
 from dropbox.exceptions import AuthError
@@ -180,7 +181,7 @@ class TestHelper(unittest.TestCase):
 
 
     def test_command_delete(self):
-        expected_value = f"Files to be deleted: 1 files.\nDo you really want to delete the files listed [y/n]? \nIt has been deleted 1 files!\n"
+        expected_value = f"/home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/user_Ex6Ux0I.png\nFiles to be deleted: 1 files.\nDo you really want to delete the files listed [y/n]?\nIt has been deleted 1 files!\n"
         files_server = ([MOCK_FILES[0], MOCK_FILES[1]],[])
         files_to_kept = ['user.png']
         with redirect_stdout(StringIO()) as output:
@@ -190,11 +191,11 @@ class TestHelper(unittest.TestCase):
                 self.assertEqual(expected_value, output.getvalue())
 
         
-        expected_value = f"Files to be deleted: 1 files.\nDo you really want to delete the files listed [y/n]? \nDeletion has been canceled!\n"
+        expected_value = f"/home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/user_Ex6Ux0I.png\nFiles to be deleted: 1 files.\nDo you really want to delete the files listed [y/n]?\nDeletion has been canceled!\n"
         with redirect_stdout(StringIO()) as output:
             with patch('commands.input') as input_data:
                 input_data.return_value = "n"
-                remove_files(files_server, files_to_kept, len)
+                remove_files(directory=files_server, filenames_to_be_kept=files_to_kept, delete=len)
                 self.assertEqual(expected_value, output.getvalue())
 
     def test_parser(self):
@@ -236,6 +237,19 @@ class TestHelper(unittest.TestCase):
                 with patch('commands.input') as input_data:
                     input_data.return_value = "y"
                     main(args)
+
+        
+    def test_cli_bad_command(self):
+        args = [
+            "-f tests/test.csv",
+            "-p /home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/",
+            "-k 1234",
+            "-l",
+            "-r"]    
+        with patch("cli.Connection") as conn:
+            conn.return_value = MockConnection("1234")
+            with self.assertRaises(SystemExit):
+                main(args)
 
 if __name__ == '__main__':
     unittest.main()

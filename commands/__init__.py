@@ -32,7 +32,8 @@ def remove_files(*,directory:Tuple[Iterable, Iterable], filenames_to_be_kept:Ite
         print(f"{item}", sep="\n")
     print(f"Files to be deleted: {len(file_to_delete)} files.", 
          file=sys.stdout)
-    confirm = input("Do you really want to delete the files listed [y/n]? \n")
+    print("Do you really want to delete the files listed [y/n]?", end="\n")
+    confirm = input()
     if confirm=="y":
         delete(file_to_delete)
         print(f"It has been deleted {len(file_to_delete)} files!", 
