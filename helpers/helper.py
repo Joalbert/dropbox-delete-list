@@ -1,12 +1,12 @@
 import sys
 import csv
-from typing import List, Dict, Iterable
+from typing import List, Dict, Iterable, Tuple, Type, Any
 
 from dropbox import Dropbox
 from dropbox.exceptions import AuthError
 from dropbox.files import FileMetadata
 
-def diff_files(*, files_in_db:Iterable[Dict], files_in_server:List[str], field_output: str="id")->List[str]:
+def diff_files(*, files_in_db:Iterable[str], files_in_server:Iterable[Dict[str, str]], field_output: str="id")->List[str]:
     ''' Check difference between existant and files_in_db lists and elements not in files_in_db will be returned'''
     diff:List[str] = list()
     for file in files_in_server:
@@ -29,7 +29,7 @@ class Connection:
     def __init__(self, token:str)->None:
         self.token = token
     
-    def _connect(self)->None:
+    def _connect(self)-> Type[Dropbox]: 
         """Connect to dropbox server"""
         try:
             dbx = Dropbox(self.token) 
@@ -42,18 +42,18 @@ class Connection:
         else:
             return dbx
         
-    def get_files(self, *, path:str="")->tuple:
+    def get_files(self, *, path:str="")->Tuple[List[Dict[str, Any]], List[Any]]:
         """Return a tuples with a list of files in a given Dropbox folder path for first element, and list of directory for 
         second element."""
         try:
             dbx = self._connect()
             folder = dbx.files_list_folder(path)
-            files = folder.entries
-        except Exception as e:
+        except (Exception, ConnectionError) as e:
             print(f'Error getting list of files from Dropbox: {str(e)} \n',file=sys.stderr)
             raise
 
         else:
+            files = folder.entries
             files_list, directory_list = [], []
             for file in files:
                 if isinstance(file, FileMetadata):
@@ -70,7 +70,7 @@ class Connection:
             return (files_list, directory_list)
     
     def delete_files(self, file_id:Iterable[str])->None:
-        """Delete file_id list"""
+        """Delete files/directory from a iterable"""
         try:
             dbx = self._connect()
             for file in file_id:

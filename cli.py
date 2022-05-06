@@ -1,4 +1,7 @@
 import argparse
+import sys
+from requests.exceptions import ConnectionError
+
 from helpers.helper import Connection, format_csv
 from commands import print_out_directory, remove_files
 
@@ -12,19 +15,33 @@ def parse_arguments():
     group.add_argument("-r", "--remove", help="Delete files", action="store_true")
     return parser.parse_args()
 
-
-if __name__ == "__main__":
+def main():
     # 1 - Define Arg parser
     args = parse_arguments()
     
     # 2 - Initiate connection to Dropbox and getting files in server 
     connection =Connection(args.key)
-    directory = connection.get_files(path=args.path)
+    try:
+        directory = connection.get_files(path=args.path)
+    except ConnectionError:
+        print("Please, try later", file=sys.stdout)
+        return 1
+
     if args.list:
-        print_out_directory(directory)
+        try:
+            print_out_directory(directory)
+            return 0
+        except ConnectionError:
+            print("Please, try later", file=sys.stdout)
 
     # 3 - Remove files
     if args.remove:
-        remove_files(directory, format_csv(args.file), connection.delete_files)
-        
+        try:
+            remove_files(directory, format_csv(args.file), connection.delete_files)
+        except ConnectionError:
+            print("Please, try later", file=sys.stdout)
+        return 0
+
+if __name__ == "__main__":
+    exit(main())        
             
