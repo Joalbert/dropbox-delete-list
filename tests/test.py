@@ -4,6 +4,7 @@ from contextlib import redirect_stderr, redirect_stdout
 import datetime
 import unittest
 from unittest.mock import patch
+from typing import (Type, Tuple, List, Any, Dict, Iterable)
 
 from dropbox import Dropbox
 from dropbox.exceptions import AuthError
@@ -11,6 +12,7 @@ from dropbox.files import FileMetadata
 
 from helpers.helper import (diff_files, Connection, format_csv)
 from commands import print_out_directory, remove_files
+from cli import main, parse_arguments
 
 FILES_IN_DB = ['user.png','user_Ex6Ux0I.png',]
 EXPECTED_RESULT = ['user_Pe9OmXf.png','user_VtIfC05.png']
@@ -69,6 +71,24 @@ class MockFolder:
     @property
     def entries(self):
         return MOCK_FILE_DATA
+
+class MockConnection:
+    """Connection to Dropbox Server"""
+    def __init__(self, token:str)->None:
+        self.token = token
+    
+    def _connect(self)-> Type[Dropbox]: 
+        """Connect to dropbox server"""
+        pass
+        
+    def get_files(self, *, path:str="")->Tuple[List[Dict[str, Any]], List[Any]]:
+        """Return a tuples with a list of files in a given Dropbox folder path for first element, and list of directory for 
+        second element."""
+        return (MOCK_FILES, [])
+    
+    def delete_files(self, file_id:Iterable[str])->None:
+        """Delete files/directory from a iterable"""
+        return None
 
 
 class TestHelper(unittest.TestCase):
@@ -177,10 +197,45 @@ class TestHelper(unittest.TestCase):
                 remove_files(files_server, files_to_kept, len)
                 self.assertEqual(expected_value, output.getvalue())
 
-
+    def test_parser(self):
+        parser = parse_arguments([
+            "-f /data",
+            "-p /home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/",
+            "-k 1234",
+            "-l"])
+        self.assertTrue(parser)
+    
+    
     def test_cli(self):
-        result = os.system("python3 cli.py -f test.csv -k 1234 -p /media/identifications/images -l")
-        self.assertEqual(result,0)
+        args = [
+            "-f tests/test.csv",
+            "-p /home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/",
+            "-k 1234",
+            "-l"]    
+        with patch("cli.Connection") as conn:
+            conn.return_value = MockConnection("1234")
+            main(args)        
+
+        args = [
+            "-f /tests/test.csv",
+            "-p /home/joalbert/Documents/Remesas App/RemesasServer/media/identifications/images/",
+            "-k 1234",
+            "-r"]    
+        with patch("cli.format_csv") as csv:
+            csv.return_value = ['user.png']
+            with patch("cli.Connection") as conn:
+                conn.return_value = MockConnection("1234")
+                with patch('commands.input') as input_data:
+                    input_data.return_value = "n"
+                    main(args)
+
+        with patch("cli.format_csv") as csv:
+            csv.return_value = ['user.png']
+            with patch("cli.Connection") as conn:
+                conn.return_value = MockConnection("1234")
+                with patch('commands.input') as input_data:
+                    input_data.return_value = "y"
+                    main(args)
 
 if __name__ == '__main__':
     unittest.main()
