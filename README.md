@@ -60,6 +60,7 @@ They are two flgs that are mutually exclusive, it means you should use only one 
 </table>
  
 <h1>Examples</h1>
+<h3> List Files from a directory in Dropbox</h3>
 <code> python3 cli.py -k $TOKEN -p "" -l </code>
 <h4>Output:</h4>
 <p>DIR:</p>
@@ -73,10 +74,12 @@ They are two flgs that are mutually exclusive, it means you should use only one 
 <p>--64x64.svg 2021-11-01 19:47:59</p>
 <p>Files: 2 items</p>
 
+<h3> List Files from a directory which is empty in Dropbox</h3>
 <code>python3 cli.py -k $TOKEN -p "/app/media/identifications/images" -l</code>
 <h4>Output:</h4>
 <p>It is empty.</p>
 
+<h3> Try to delete files but you cancel when the prompt ask for confirmation </h3>
 <code>python3 cli.py -k $TOKEN -p "/home/joalbert/Documents/test/dummy/media/country/images" -r -f data/payment_db.csv</code>
 <h4>Output:</h4>
 <p>/home/joalbert/Documents/test/dummy/media/country/images/us.png</p>
@@ -87,6 +90,7 @@ They are two flgs that are mutually exclusive, it means you should use only one 
 n</p>
 <p>Deletion has been canceled!</p>
 
+<h3> Try to delete files and you confirm when the prompt ask for confirmation </h3>
 <code>python3 cli.py -k $TOKEN -p "/home/joalbert/Documents/test/dummy/media/country/images" -r -f data/payment_db.csv</code>
 <p>/home/joalbert/Documents/test/dummy/media/country/images/us.png</p>
 <p>/home/joalbert/Documents/test/dummy/media/country/images/us_bP4iy1J.png</p>
